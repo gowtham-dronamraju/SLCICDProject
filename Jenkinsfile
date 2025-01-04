@@ -44,7 +44,7 @@ pipeline {
             steps {
                 script {
                     // Path to your generated WAR file
-                    def warFile = '/opt/tomcat/webapps/myproject-1.war'
+                    def warFile = '/var/lib/jenkins/workspace/war_tomcat_freestyle/target/myproject-1.war'
 
                     // Command to deploy to Tomcat via the Tomcat Manager
                     sh """
