@@ -2,16 +2,10 @@ pipeline {
     agent any
 
     environment {
-        TOMCAT_USER = 'tomcat'
-        TOMCAT_PASSWORD = 'admin_password'
-        TOMCAT_HOST = '127.0.0.1'
-        TOMCAT_PORT = '8080'
-        TOMCAT_WEBAPPS_DIR = '/opt/tomcat/webapps'
-        LOCAL_WAR_PATH = '/var/lib/jenkins/.m2/repository/devops/sl/devops.sl/0.0.1-SNAPSHOT/devops.sl-0.0.1-SNAPSHOT.jar'
-        REMOTE_WAR_PATH = '/opt/tomcat/webapps/helloworld5.war'
-        SSH_KEY_PATH = '/var/lib/jenkins/.ssh/id_rsa'
-        SSH_USER = 'gowtham'
-        SSH_PASSWORD = 'Avyaan1!'
+        TOMCAT_HOME = "/opt/tomcat"  // Update this to your Tomcat home directory
+        TOMCAT_USER = "admin"  // Tomcat user with manager privileges
+        TOMCAT_PASS = "admin_password"  // Tomcat password for manager
+        TOMCAT_URL = "http://localhost:8080/manager/text"  // URL for Tomcat manager
     }
     tools {        
         maven 'MAVEN_HOME'
@@ -19,12 +13,14 @@ pipeline {
 
     stages {
 
-        stage('Welcome Stage') {
+     stage('Git repo Checkout') {
             steps {
-                echo "Welcome to Pipeline"
+                // Checkout the source code from the repository
+                git 'https://github.com/gowtham-dronamraju/HelloWorld-WAR.git'
             }
-        }  
-        stage('Maven Test') {
+        }
+        
+     stage('Maven Test') {
             steps {
                 sh 'mvn test'
             }
@@ -44,21 +40,18 @@ pipeline {
         
 
 
-        stage('Deploy JAR to Tomcat') {
+        stage('Deploy to Tomcat') {
             steps {
                 script {
-                    // Deploy the JAR file using SSH and SCP
-                    withCredentials([sshUserPrivateKey(credentialsId: '75dfdd4d-22fc-47e5-bcb7-6281e06fb3d0', keyFileVariable: 'SSH_KEY_PATH')]) {
-                        sh '''
-                        # Check if the SSH key has the right permissions
-                        chmod 600 $SSH_KEY_PATH
+                    // Path to your generated WAR file
+                    def warFile = '/opt/tomcat/webapps/myproject-1.war'
 
-                        # Transfer the JAR file to the Tomcat server
-                        scp -i $SSH_KEY_PATH $LOCAL_JAR_PATH $TOMCAT_USER@$TOMCAT_HOST:$REMOTE_JAR_PATH
-                        
-                        # Restart Tomcat to apply changes (only if needed)
-                        ssh -i $SSH_KEY_PATH $TOMCAT_USER@$TOMCAT_HOST "sudo systemctl restart tomcat"
-                        '''
+                    // Command to deploy to Tomcat via the Tomcat Manager
+                    sh """
+                        curl -u ${TOMCAT_USER}:${TOMCAT_PASS} \
+                        --upload-file ${warFile} \
+                        ${TOMCAT_URL}/deploy?path=/myproject&update=true
+                    """
                     }
                 }
             }
