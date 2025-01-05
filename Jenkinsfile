@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        WAR_FILE_PATH = '/var/lib/jenkins/workspace/maven_pipeline/target/myproject-1.war'
+        WAR_FILE_PATH = '/var/lib/jenkins/workspace/maven_pipeline/target/myproject-1.0.war'
         TOMCAT_HOME = "/opt/tomcat"  // Update this to your Tomcat home directory
         TOMCAT_URL = 'http://localhost:8080' // URL for Tomcat 
         TOMCAT_CREDS = credentials('tomcat_creds')  // Jenkins credentials ID for Tomcat
