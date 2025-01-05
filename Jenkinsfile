@@ -4,48 +4,44 @@ pipeline {
     environment {
         WAR_FILE_PATH = '/var/lib/jenkins/workspace/war_tomcat_freestyle/target/myproject-1.war'
         TOMCAT_HOME = "/opt/tomcat"  // Update this to your Tomcat home directory
-        TOMCAT_USER = "admin"  // Tomcat user with manager privileges
-        TOMCAT_PASS = "admin_password"  // Tomcat password for manager
         TOMCAT_URL = 'http://localhost:8080' // URL for Tomcat 
         TOMCAT_CREDS = credentials('tomcat_creds')  // Jenkins credentials ID for Tomcat
     }
-    tools {        
+
+    tools {
         maven 'MAVEN_HOME'
     }
 
     stages {
-
-     stage('Git repo Checkout') {
+        stage('Git repo Checkout') {
             steps {
                 // Checkout the source code from the repository
                 git 'https://github.com/gowtham-dronamraju/HelloWorld-WAR.git'
             }
         }
-        
-     stage('Maven Test') {
+
+        stage('Maven Test') {
             steps {
                 sh 'mvn test'
             }
-        }      
+        }
 
         stage('Maven Build') {
             steps {
                 sh 'mvn clean install'
             }
-        }        
+        }
+
         stage('Build Success') {
             steps {
                 echo "Build Successful"
             }
-        }   
-            
-        
-
+        }
 
         stage('Deploy to Tomcat') {
             steps {
                 script {
-                                        // Ensure the WAR file exists
+                    // Ensure the WAR file exists
                     if (fileExists(WAR_FILE_PATH)) {
                         echo "WAR file found at ${WAR_FILE_PATH}"
                     } else {
@@ -54,14 +50,13 @@ pipeline {
 
                     // Deploy WAR to Tomcat
                     echo "Deploying WAR file to Tomcat server at ${TOMCAT_URL}"
-                    
+
                     // Use curl to deploy the WAR file
                     sh """
                         curl -u ${TOMCAT_CREDS_USR}:${TOMCAT_CREDS_PSW} \
                         --upload-file ${WAR_FILE_PATH} \
                         ${TOMCAT_URL}/manager/text/deploy?path=/myproject&update=true
                     """
-                    }
                 }
             }
         }
@@ -69,9 +64,20 @@ pipeline {
 
     post {
         success {
-            echo 'Deployment was successful!'
+            script {
+                echo 'Deployment was successful!'
+            }
         }
         failure {
-            echo 'Deployment failed.'
+            script {
+                echo 'Deployment failed.'
+            }
         }
-    }    
+        always {
+            script {
+                echo 'Pipeline execution finished.'
+            }
+        }
+    }
+}
+
