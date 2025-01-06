@@ -47,6 +47,20 @@ pipeline {
                     } else {
                         error "WAR file does not exist at ${WAR_FILE_PATH}"
                     }
+                    
+
+                    // Undeploy the existing application if it exists
+
+                    def tomcatAppPath = "/myproject"
+                    def tomcatUrl = "${TOMCAT_URL}/manager/text"
+                    
+                    echo "Undeploying existing application at ${tomcatAppPath}"
+                    
+                    sh """
+                    curl -u ${TOMCAT_CREDS_USR}:${TOMCAT_CREDS_PSW} \
+                    --silent --request POST ${tomcatUrl}/undeploy?path=${tomcatAppPath}
+                    """
+
 
                     // Deploy WAR to Tomcat
                     echo "Deploying WAR file to Tomcat server at ${TOMCAT_URL}"
