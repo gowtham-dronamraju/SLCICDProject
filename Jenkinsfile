@@ -58,7 +58,7 @@ pipeline {
                     
                     sh """
                     curl -u ${TOMCAT_CREDS_USR}:${TOMCAT_CREDS_PSW} \
-                    --silent --request POST ${tomcatUrl}/undeploy?path=${tomcatAppPath}
+                    --silent --request DELETE ${tomcatUrl}/undeploy?path=${tomcatAppPath}
                     """
 
 
