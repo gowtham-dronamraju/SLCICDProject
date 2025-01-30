@@ -1,75 +1,34 @@
 pipeline {
     agent any
-
+    
     environment {
-        WAR_FILE_PATH = '/var/lib/jenkins/workspace/maven_pipeline/target/myproject-1.0.war'
-        TOMCAT_HOME = "/opt/tomcat"  // Update this to your Tomcat home directory
-        TOMCAT_URL = 'http://localhost:8080' // URL for Tomcat 
-        TOMCAT_CREDS = credentials('tomcat_creds')  // Jenkins credentials ID for Tomcat
-    }
-
-    tools {
-        maven 'MAVEN_HOME'
+        TOMCAT_SERVER = 'http://127.0.0.1:8080'
+        TOMCAT_DEPLOY_DIR = '/opt/tomcat/webapps'  // Update with actual Tomcat webapps directory
+        APP_NAME = 'HelloWorld-WAR'  // Update with your application name
+        TOMCAT_USER = 'admin'  // Replace with your Tomcat username
+        TOMCAT_PASS = 'admin'  // Replace with your Tomcat password
     }
 
     stages {
-        stage('Git repo Checkout') {
+        stage('Checkout') {
             steps {
-                // Checkout the source code from the repository
+                // Checkout the repository from GitHub
                 git 'https://github.com/gowtham-dronamraju/HelloWorld-WAR.git'
-            }
-        }
-
-        stage('Maven Test') {
-            steps {
-                sh 'mvn test'
-            }
-        }
-
-        stage('Maven Build') {
-            steps {
-                sh 'mvn clean install'
-            }
-        }
-
-        stage('Build Success') {
-            steps {
-                echo "Build Successful"
             }
         }
 
         stage('Deploy to Tomcat') {
             steps {
                 script {
-                    // Ensure the WAR file exists
-                    if (fileExists(WAR_FILE_PATH)) {
-                        echo "WAR file found at ${WAR_FILE_PATH}"
-                    } else {
-                        error "WAR file does not exist at ${WAR_FILE_PATH}"
-                    }
-                    
+                    // Assuming WAR file is downloaded from GitHub Actions
+                    def warFile = params.warFile  // WAR file path passed from GitHub Actions
 
-                    // Undeploy the existing application if it exists
+                    // Copy the WAR file to the Tomcat webapps directory
+                    sh "cp ${warFile} ${TOMCAT_DEPLOY_DIR}"
 
-                    def tomcatAppPath = "/myproject"
-                    def tomcatUrl = "${TOMCAT_URL}/manager/text"
-                    
-                    echo "Undeploying existing application at ${tomcatAppPath}"
-                    
+                    // Restart Tomcat to deploy the WAR
                     sh """
-                    curl -u ${TOMCAT_CREDS_USR}:${TOMCAT_CREDS_PSW} \
-                    --silent --request DELETE ${tomcatUrl}/undeploy?path=${tomcatAppPath}
-                    """
-
-
-                    // Deploy WAR to Tomcat
-                    echo "Deploying WAR file to Tomcat server at ${TOMCAT_URL}"
-
-                    // Use curl to deploy the WAR file
-                    sh """
-                        curl -u ${TOMCAT_CREDS_USR}:${TOMCAT_CREDS_PSW} \
-                        --upload-file ${WAR_FILE_PATH} \
-                        ${TOMCAT_URL}/manager/text/deploy?path=/myproject&update=true
+                    curl -u ${TOMCAT_USER}:${TOMCAT_PASS} ${TOMCAT_SERVER}/manager/text/reload?path=/${APP_NAME}
                     """
                 }
             }
@@ -78,19 +37,11 @@ pipeline {
 
     post {
         success {
-            script {
-                echo 'Deployment was successful!'
-            }
+            echo 'Deployment successful!'
         }
+
         failure {
-            script {
-                echo 'Deployment failed.'
-            }
-        }
-        always {
-            script {
-                echo 'Pipeline execution finished.'
-            }
+            echo 'Deployment failed!'
         }
     }
 }
