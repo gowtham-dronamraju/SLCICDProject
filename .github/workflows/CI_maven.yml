@@ -23,7 +23,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '17'  # Changed to JDK 17
-          distribution: 'adoptopenjdk'
+          distribution: 'temurin'
 
       # Step 3: Cache Maven dependencies to speed up builds
       - name: Cache Maven dependencies
