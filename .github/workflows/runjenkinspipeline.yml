@@ -1,0 +1,19 @@
+name: Trigger Jenkins Pipeline
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to the main branch
+
+jobs:
+  trigger-jenkins:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Trigger Jenkins Pipeline
+        run: |
+          curl -X POST https://6cd7-49-206-62-19.ngrok-free.app/job/myfirstpipeline/build \
+          --user "gowthamdronamraju:114b2a22564f5468108e3e09c168bd6643"
