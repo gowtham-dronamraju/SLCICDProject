@@ -13,6 +13,6 @@ jobs:
 
       - name: Trigger Jenkins Pipeline
         run: |
-          curl -X POST https://6cd7-49-206-62-19.ngrok-free.app/job/myfirstpipeline/build \
+          curl -X POST https://https://81a0-49-206-62-19.ngrok-free.app/job/myfirstpipeline/build \
           --user "gowthamdronamraju:11eb3dd54a12638df3a2bc7cf630dd8835"
 
