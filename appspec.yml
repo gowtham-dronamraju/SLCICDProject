@@ -1,5 +1,0 @@
-version: 1
-os: linux
-files:
-  - source: /
-    destination: /var/lib/tomcat8/webapps
