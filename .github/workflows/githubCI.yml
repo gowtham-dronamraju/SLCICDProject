@@ -64,7 +64,7 @@ jobs:
           CRUMB=$(curl -s -u "${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}" "https://6e92-124-123-167-208.ngrok-free.app/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)")
           
           # Trigger the Jenkins job
-          curl -X POST "https://6e92-124-123-167-208.ngrok-free.app/job/myfirstpipeline/build" \
+          curl -X POST "https://6e92-124-123-167-208.ngrok-free.app/job/SL_war_tomcat_deployment/build" \
                -u "${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}" \
                -H "$CRUMB"
 
