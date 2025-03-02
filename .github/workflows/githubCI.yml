@@ -55,17 +55,20 @@ jobs:
 
   trigger-jenkins:
     needs: build  # Runs only after the build job is successful
-    runs-on: ubuntu-latest  # Uses a GitHub-hosted runner
+    runs-on: ubuntu-latest
     
     steps:
       - name: Trigger Jenkins Pipeline
         run: |
-          # Fetch Jenkins Crumb Token for CSRF protection
-          CRUMB=$(curl -s -u "${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}" "https://6e92-124-123-167-208.ngrok-free.app/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)")
+          JENKINS_URL="https://6cd7-49-206-62-19.ngrok-free.app"
+          JOB_NAME="SL_war_tomcat_deployment"
           
-          # Trigger the Jenkins job
-          curl -X POST "https://6e92-124-123-167-208.ngrok-free.app/job/SL_war_tomcat_deployment/build" \
+          # Get Crumb Token for CSRF protection
+          CRUMB=$(curl -s -u "${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}" "$JENKINS_URL/crumbIssuer/api/json" | jq -r '.crumb')
+          
+          # Trigger Jenkins job with Crumb Token
+          curl -X POST "$JENKINS_URL/job/$JOB_NAME/build" \
                -u "${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}" \
-               -H "$CRUMB"
+               -H "Jenkins-Crumb:$CRUMB"
 
 
